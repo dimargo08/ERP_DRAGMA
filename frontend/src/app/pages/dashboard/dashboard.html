@@ -1,0 +1,87 @@
+@if (!stats()) {
+  <div class="empty-state">Cargando panel...</div>
+} @else {
+  <div class="kpis">
+    @for (k of kpis(); track k.label) {
+      <div class="kpi card">
+        <span class="kpi-ico" [style.background]="k.color + '1c'" [style.color]="k.color">
+          <ui-icon [name]="k.icon" [size]="20" />
+        </span>
+        <div>
+          <div class="kpi-val">
+            @if (k.money) {
+              {{ k.value | number: '1.0-0' }} €
+            } @else {
+              {{ k.value }}
+            }
+          </div>
+          <div class="kpi-label">{{ k.label }}</div>
+        </div>
+      </div>
+    }
+  </div>
+
+  <div class="dash-grid">
+    <div class="card pad">
+      <h3>Ventas últimos 6 meses</h3>
+      <p class="muted small">Pedidos confirmados y finalizados</p>
+      <div class="chart">
+        @for (m of stats()!.salesByMonth; track m.month) {
+          <div class="chart-col" [title]="fmtMoney(m.total)">
+            <div class="chart-bar" [style.height.%]="(100 * m.total) / maxMonth()">
+              <span class="chart-tip">{{ m.total / 1000 | number: '1.0-1' }}k</span>
+            </div>
+            <span class="chart-lbl">{{ fmtMonth(m.month) }}</span>
+          </div>
+        } @empty {
+          <span class="muted small">Sin ventas registradas</span>
+        }
+      </div>
+    </div>
+
+    <div class="card pad">
+      <h3>Productos más vendidos</h3>
+      <p class="muted small">Por importe total</p>
+      @for (p of stats()!.topProducts; track p.description) {
+        <div class="top-row">
+          <div class="top-head"><span>{{ p.description }}</span><b>{{ p.total | number: '1.0-0' }} €</b></div>
+          <div class="progress-track"><div class="progress-fill" [style.width.%]="(100 * p.total) / maxTop()"></div></div>
+        </div>
+      } @empty {
+        <p class="muted small">Sin datos todavía</p>
+      }
+    </div>
+
+    <div class="card pad">
+      <h3>Stock bajo mínimo</h3>
+      <p class="muted small">Productos que necesitan reposición</p>
+      @if (stats()!.lowStock.length === 0) {
+        <p class="ok-note"><ui-icon name="dashboard" [size]="14" /> Todo el stock está por encima del mínimo</p>
+      }
+      @for (p of stats()!.lowStock; track p.id) {
+        <div class="low-row">
+          <span>{{ p.name }}</span>
+          <b class="badge red">{{ p.qty_available }} / min {{ p.min_stock }}</b>
+        </div>
+      }
+    </div>
+
+    <div class="card pad">
+      <h3>Últimos pedidos</h3>
+      <table class="tbl plain">
+        <tbody>
+          @for (o of stats()!.recentOrders; track o.id) {
+            <tr>
+              <td><a [routerLink]="['/sales']" class="link">{{ o.name }}</a></td>
+              <td>{{ o.partner_name }}</td>
+              <td><span class="badge gray">{{ salesStateLabels[o.state] || o.state }}</span></td>
+              <td class="num money">{{ o.amount_total | number: '1.2-2' }} €</td>
+            </tr>
+          } @empty {
+            <tr><td colspan="4" class="muted">Sin pedidos</td></tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </div>
+}

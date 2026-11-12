@@ -1,0 +1,37 @@
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo"><ui-logo [size]="56" /></div>
+    <h1>DRA<b>GMA</b> ERP</h1>
+    <p class="login-sub">Gestión empresarial con fuego interior</p>
+
+    <form (submit)="submit($event)">
+      <label class="field">
+        <span>Email</span>
+        <input type="email" name="email" [(ngModel)]="email" autocomplete="username" required placeholder="tu@dragma.com" />
+      </label>
+      <label class="field">
+        <span>Contraseña</span>
+        <input type="password" name="password" [(ngModel)]="password" autocomplete="current-password" required placeholder="••••••••" />
+      </label>
+
+      @if (error()) {
+        <div class="alert error">{{ error() }}</div>
+      }
+
+      <button type="submit" class="btn btn-primary btn-block" [disabled]="loading()">
+        @if (loading()) {
+          <span class="spinner"></span>
+        }
+        {{ loading() ? 'Entrando...' : 'Iniciar sesión' }}
+      </button>
+    </form>
+
+    @if (showDemo) {
+      <div class="demo-box">
+        <small>Cuentas de prueba</small>
+        <code>admin&#64;dragma.com · demo123</code>
+        <code>ana&#64;dragma.com · demo123</code>
+      </div>
+    }
+  </div>
+</div>

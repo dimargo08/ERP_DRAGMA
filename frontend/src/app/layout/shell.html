@@ -1,0 +1,88 @@
+<div class="shell" [class.menu-hidden]="!menuOpen()">
+  <aside class="sidebar">
+    <a class="brand" routerLink="/dashboard">
+      <ui-logo class="plate" [size]="34" />
+      <span class="brand-name">DRA<b>GMA</b></span>
+    </a>
+    <nav class="side-nav">
+      @for (item of menu; track item.path) {
+        <a
+          class="side-item"
+          [routerLink]="item.path"
+          routerLinkActive="active"
+          (click)="userOpen.set(false)"
+        >
+          <span class="side-ico"><ui-icon [name]="item.icon" /></span>
+          <span>{{ item.label }}</span>
+        </a>
+      }
+    </nav>
+    <div class="sidebar-foot">Dragma ERP · v1.0</div>
+  </aside>
+
+  <div class="main-col">
+    <header class="topbar">
+      <button
+        type="button"
+        class="icon-btn menu-toggle"
+        [attr.aria-label]="menuOpen() ? 'Ocultar menú' : 'Mostrar menú'"
+        [title]="menuOpen() ? 'Ocultar menú' : 'Mostrar menú'"
+        (click)="toggleMenu()"
+      >
+        <ui-icon name="menu" [size]="20" />
+      </button>
+      <h2 class="page-title">{{ pageTitle() }}</h2>
+      <div class="topbar-spacer"></div>
+      <button type="button" class="btn btn-ghost btn-sm" (click)="appsOpen.set(!appsOpen())">
+        <ui-icon name="grid" /> <span class="hide-sm">Aplicaciones</span>
+      </button>
+      <div class="user-chip" (click)="userOpen.set(!userOpen())">
+        <div class="avatar">{{ initials() }}</div>
+        <div class="user-meta hide-sm">
+          <strong>{{ auth.user()?.name }}</strong>
+          <small>{{ roleLabel() }}</small>
+        </div>
+        <ui-icon name="chevronDown" [size]="16" />
+        @if (userOpen()) {
+          <div class="dropdown" (click)="$event.stopPropagation()">
+            <div class="dd-head">
+              <strong>{{ auth.user()?.name }}</strong>
+              <small>{{ auth.user()?.email }}</small>
+            </div>
+            <button type="button" class="dd-item" (click)="logout()">
+              <ui-icon name="logout" [size]="16" /> Cerrar sesión
+            </button>
+          </div>
+        }
+      </div>
+    </header>
+
+    <main class="content">
+      <router-outlet />
+    </main>
+  </div>
+
+  @if (appsOpen()) {
+    <div class="apps-overlay" (click)="appsOpen.set(false)">
+      <div class="apps-panel" (click)="$event.stopPropagation()">
+        <h3>Aplicaciones</h3>
+        <div class="apps-grid">
+          @for (item of menu; track item.path) {
+            <button type="button" class="app-tile" (click)="go(item.path)">
+              <span class="app-ico" [style.background]="item.color + '1c'" [style.color]="item.color">
+                <ui-icon [name]="item.icon" [size]="24" />
+              </span>
+              <span>{{ item.label }}</span>
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="toasts">
+  @for (t of toastList(); track t.id) {
+    <div class="toast" [class.error]="t.kind === 'error'" (click)="dismissToast(t.id)">{{ t.text }}</div>
+  }
+</div>
